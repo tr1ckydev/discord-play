@@ -1,66 +1,66 @@
-# DiscordPlayVoiceConnection
+# DisPlayConnection
 
 Creates a voice connection to the provided voice object and attaches logic to it.
 
 ```js
-import { DiscordPlayVoiceConnection, PlayEvents } from 'discord-play';
+import { DisPlayConnection, DisPlayEvent } from 'discord-play';
 
 // some code
-const connection = new DiscordPlayVoiceConnection(message.member.voice);
+const connection = new DisPlayConnection(message.member.voice);
 ```
 
 
 
 #### List of events triggered along with usages :
 
-- `PlayEvents.VOICE_JOIN` - When a voice channel is joined successfully
+- `DisPlayEvent.VOICE_JOIN` - When a voice channel is joined successfully
 
   ```js
-  connection.on(PlayEvents.VOICE_JOIN, (voice) => {
-  	message.reply("Joined voice channel: " + voice.name);
+  connection.on(DisPlayEvent.VOICE_JOIN, (voiceId) => {
+  	message.reply("Joined voice channel");
   });
   ```
 
-- `PlayEvents.VOICE_LEAVE` - When a voice channel is left due to some reason
+- `DisPlayEvent.VOICE_LEAVE` - When a voice channel is left due to some reason
 
   ```js
-  connection.on(PlayEvents.VOICE_LEAVE, (voice, reason) => {
-  	message.reply("Left voice " + voice.name + " due to " + reason);
+  connection.on(DisPlayEvent.VOICE_LEAVE, (voiceId) => {
+  	message.reply("Left voice");
   });
   ```
 
-- `PlayEvents.VOICE_MOVE` - When the bot was moved from one voice channel to another
+- `DisPlayEvent.VOICE_MOVE` - When the bot was moved from one voice channel to another
 
   (*Note: This event takes 3 seconds to trigger as it takes 3 seconds to decide whether it was moved to another voice channel or kicked.*)
 
   ```js
-  connection.on(PlayEvents.VOICE_MOVE, (oldVoice, newVoice) => {
-  	message.reply("Got moved from " + oldVoice.name + " to " + newVoice.name);
+  connection.on(DisPlayEvent.VOICE_MOVE, (oldVoiceId, newVoiceId) => {
+  	message.reply("Got moved");
   });
   ```
 
-- `PlayEvents.VOICE_KICK` - When the bot was forcibly kicked from the voice channel
+- `DisPlayEvent.VOICE_KICK` - When the bot was forcibly kicked from the voice channel
 
   (*Note: This event takes 3 seconds to trigger as it takes 3 seconds to decide whether it was moved to another voice channel or kicked.*)
 
   ```js
-  connection.on(PlayEvents.VOICE_KICK, () => {
+  connection.on(DisPlayEvent.VOICE_KICK, (voiceId) => {
   	message.reply("Bot was manually kicked from the voice channel");
   });
   ```
 
-- `PlayEvents.CONNECTION_ERROR` - When the connection fails and reconnection too fails
+- `DisPlayEvent.CONNECTION_ERROR` - When the connection fails and reconnection too fails
 
   ```js
-  connection.on(PlayEvents.CONNECTION_ERROR, () => {
+  connection.on(DisPlayEvent.CONNECTION_ERROR, () => {
   	message.reply("Bot left voice due to connection error");
   });
   ```
 
-- `PlayEvents.SELF_DEAFEN` - When the `toggleDeafen()` was used to deafen/undeafen the bot
+- `DisPlayEvent.SELF_DEAFEN` - When the `toggleDeafen()` was used to deafen/undeafen the bot
 
   ```js
-  connection.on(PlayEvents.SELF_DEAFEN, (value) => {
+  connection.on(DisPlayEvent.SELF_DEAFEN, (value) => {
   	if (value) {
           message.reply("Bot has been self-deafened");
       } else { 
@@ -69,10 +69,10 @@ const connection = new DiscordPlayVoiceConnection(message.member.voice);
   });
   ```
 
-- `PlayEvents.SELF_MUTE` - When the `toggleMute()` was used to mute/unmute the bot
+- `DisPlayEvent.SELF_MUTE` - When the `toggleMute()` was used to mute/unmute the bot
 
   ```js
-  connection.on(PlayEvents.SELF_MUTE, (value) => {
+  connection.on(DisPlayEvent.SELF_MUTE, (value) => {
   	if (value) {
           message.reply("Bot has been self-muted");
       } else {
@@ -95,57 +95,57 @@ const connection = new DiscordPlayVoiceConnection(message.member.voice);
 
 
 
-# DiscordPlayAudioPlayer
+# DisPlayPlayer (Beta)
 
 Creates the audio player and attaches it to the active voice connection in the guild provided.
 
 ```js
-import { DiscordPlayAudioPlayer, PlayEvents } from 'discord-play';
+import { DisPlayPlayer, DisPlayEvent } from 'discord-play';
 
 // some code
-const player = new DiscordPlayAudioPlayer(message.guild.id);
+const player = new DisPlayPlayer(message.guild.id);
 ```
 
 
 
 #### List of events triggered along with usages :
 
-- `PlayEvents.PLAYING` - When the player starts playing a resource
+- `DisPlayEvent.PLAYING` - When the player starts playing a resource
 
   ```js
-  player.on(PlayEvents.PLAYING, (resource) => {
+  player.on(DisPlayEvent.PLAYING, (resource) => {
   	message.reply("Now playing");
   });
   ```
 
-- `PlayEvents.FINISHED` - When the player has finished playing a resource
+- `DisPlayEvent.FINISHED` - When the player has finished playing a resource
 
   ```js
-  player.on(PlayEvents.FINISHED, (oldResource) => {
+  player.on(DisPlayEvent.FINISHED, (oldResource) => {
   	message.reply("Finished playing");
   });
   ```
 
-- `PlayEvents.BUFFERING` - When the player is preparing/loading the resource
+- `DisPlayEvent.BUFFERING` - When the player is preparing/loading the resource
 
   ```js
-  player.on(PlayEvents.BUFFERING, () => {
+  player.on(DisPlayEvent.BUFFERING, () => {
   	message.reply("Loading resource...");
   });
   ```
 
-- `PlayEvents.PAUSE` - When the player was paused manually
+- `DisPlayEvent.PAUSE` - When the player was paused manually
 
   ```js
-  player.on(PlayEvents.PAUSE, () => {
+  player.on(DisPlayEvent.PAUSE, () => {
   	message.reply("Player has been paused");
   });
   ```
 
-- `PlayEvents.RESUME` - When the player was resumed manually
+- `DisPlayEvent.RESUME` - When the player was resumed manually
 
   ```js
-  player.on(PlayEvents.RESUME, () => {
+  player.on(DisPlayEvent.RESUME, () => {
   	message.reply("Playing has been resumed");
   });
   ```

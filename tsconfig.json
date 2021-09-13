@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+		"strict": true,
+		"moduleResolution": "node",
+		"removeComments": true,
+		"alwaysStrict": true,
+		"pretty": true,
+		"target": "es2019",
+		"lib": ["ESNext", "DOM"],
+		"sourceMap": true,
+		"inlineSources": true,
+		"module": "commonjs",
+		"declaration": true,
+		"declarationMap": true,
+		"outDir": "dist",
+		"incremental": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true
+	},
+  "files": [
+    "index.ts",
+    "src/connection.ts",
+    "src/player.ts",
+    "src/subscription.ts",
+	"src/eventEnums.ts"
+  ]
+}

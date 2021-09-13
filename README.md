@@ -1,4 +1,10 @@
-# discord-play
+[![NPM](https://nodei.co/npm/discord-play.png)](https://nodei.co/npm/discord-play/)
+
+[![GITHUB](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/tr1ckydev/discord-play) [![DISCORD](https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/S4svCpNupM)
+
+
+
+# discord-play (DisPlay) - Beta Project
 
 A powerful module backed by play-dl to create music bots easily and also interact with the new voice module for discord.js v13 in a more robust manner.
 
@@ -12,15 +18,9 @@ A powerful module backed by play-dl to create music bots easily and also interac
 - 100% promise based
 - 100% event logic based
 
-------
-
-
-
 ## Installation
 
-```bash
-npm install discord-play
-```
+[![NPM](https://nodei.co/npm/discord-play.png?mini=true)](https://nodei.co/npm/discord-play/)
 
 #### Pre-requisites
 
@@ -33,48 +33,41 @@ The following are some **required** npm packages to be installed (alternatives p
 - Encrytion package - `sodium` or `libsodium-wrappers`
 - The data fetching module - `play-dl`
 
-------
-
-
-
-## Usage
-
-At the moment using `require` doesn't work. You would need to add `"type": "module"` in your `package.json` to enable using es6 import. (**Sidenote:** import performs better than require in some cases)
+## Basic Usage
 
 ```js
 // ES6 JS or TS
-import { DiscordPlay, PlayEvents } from 'discord-play';
+import { DiscordPlay, DisPlayEvent } from 'discord-play';
+
+//Common JS
+const { DiscordPlay, DisPlayEvent } = require('discord-play');
 ```
 
-#### The main DiscordPlay module is currently work in progress but the separate modules are available for use.
-
-------
-
-
+**The main DiscordPlay module is currently work in progress but the separate modules are available for use.**
 
 ## Implementing the separate modules in your project
 
-`DiscordPlayVoiceConnection` and `DiscordPlayAudioPlayer` are two complete premade event-driven modules available inside DiscordPlay. You can include them in your project separately according to your need.
+`DisPlayConnection` and `DisPlayPlayer` are two complete premade event-driven modules available inside DiscordPlay. You can include them in your project separately according to your need.
+
+The full documentation for these two modules are available [here](./src/README.md).
 
 ```js
 import {
-    DiscordPlayVoiceConnection, DiscordPlayAudioPlayer, PlayEvents
+    DisPlayConnection, DisPlayPlayer, DisPlayEvent
 } from 'discord-play';
 
 // joins the voice channel and attaches all connection logic
-const connection = new DiscordPlayVoiceConnection(message.member.voice);
+const connection = new DisPlayConnection(message.member.voice);
 // attaches the premade audio player to the connection created
-const player = new DiscordPlayAudioPlayer(message.guild.id);
+const player = new DisPlayPlayer(message.guild.id);
 
 // sample connection event
-connection.on(PlayEvents.VOICE_JOIN, (voice) => {
+connection.on(DisPlayEvent.VOICE_JOIN, (voiceId) => {
 	message.reply("Joined the voice channel.");
 });
 
 // sample player event
-player.on(PlayEvents.PLAYING, () => {
+player.on(DisPlayEvent.PLAYING, () => {
     message.channel.send("Now playing.");
 });
 ```
-
-#### The full documentation for these two modules are available [here](./src/README.md).

@@ -1,14 +1,10 @@
 {
   "name": "discord-play",
-  "version": "1.0.0",
-  "description": "The complete framework based on play-dl to interact with discordjs/voice module easily.",
+  "version": "2.0.0",
+  "description": "The ultimate framework based on play-dl to create music bots in discord.js v13 and also interact with the new voice module in a robust manner.",
   "main": "index.js",
-  "type": "module",
-  "directories": {
-    "example": "examples"
-  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "compile": "tsc"
   },
   "repository": {
     "type": "git",
@@ -18,7 +14,12 @@
     "discord-play",
     "music",
     "play-dl",
-    "bot"
+    "bot",
+    "discord.js",
+    "@discordjs/voice"
+  ],
+  "files": [
+    "dist/*"
   ],
   "author": "tr1ckydev",
   "license": "ISC",
@@ -28,6 +29,7 @@
   "homepage": "https://github.com/tr1ckydev/discord-play#readme",
   "dependencies": {
     "@discordjs/voice": "^0.6.0",
-    "play-dl": "^0.9.1"
+    "play-dl": "^0.9.9",
+    "tiny-typed-emitter": "^2.1.0"
   }
 }
