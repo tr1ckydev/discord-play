@@ -1,3 +1,4 @@
+```js
 const { Client, Intents } = require('discord.js');
 const { DisPlayConnection, DisPlayEvent } = require('discord-play');
 
@@ -11,13 +12,17 @@ const client = new Client({
 
 client.once('ready', () => console.log('Ready!'));
 
-client.on('messageCreate', async message => {
+let connection;
+
+client.on('messageCreate', async (message) => {
     const command = parseCommand(message.content);
-    let connection;
     switch (command.name) {
 
         case "?join": {
-            // Creates new voice connection
+            if (connection) { message.reply("Already joined a voice channel."); return; }
+            /**
+             * create new voice connection
+             */
             connection = new DisPlayConnection(message.member.voice);
             connection.on(DisPlayEvent.VOICE_JOIN, (voiceId) => {
                 const voice = client.channels.cache.get(voiceId);
@@ -36,18 +41,27 @@ client.on('messageCreate', async message => {
         }
 
         case "?mute": {
+            if (!connection) { message.reply("No connection found"); return; }
             await connection.toggleMute();
+            message.reply("Mute toggled");
             break;
         }
 
         case "?deafen": {
+            if (!connection) { message.reply("No connection found"); return; }
             await connection.toggleDeafen();
+            message.reply("Deafen toggled")
             break;
         }
 
         case "?leave": {
-            await connection.destroy();
-            message.reply("Left voice channel");
+            if (!connection) { message.reply("No connection found"); return; }
+            try {
+                await connection.destroy();
+                message.reply("Left voice channel");
+            } catch {
+                message.reply("No connection found");
+            }
             break;
         }
 
@@ -61,3 +75,4 @@ function parseCommand(content) {
     const name = args.shift();
     return { name, args };
 }
+```
