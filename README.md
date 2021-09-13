@@ -71,3 +71,4 @@ player.on(DisPlayEvent.PLAYING, () => {
     message.channel.send("Now playing.");
 });
 ```
+
