@@ -1,6 +1,6 @@
 {
   "name": "discord-play",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "The ultimate framework based on play-dl to create music bots in discord.js v13 and also interact with the new voice module in a robust manner.",
   "main": "dist/index.js",
   "scripts": {
@@ -29,7 +29,7 @@
   "homepage": "https://github.com/tr1ckydev/discord-play#readme",
   "dependencies": {
     "@discordjs/voice": "^0.6.0",
-    "ffmpeg": "^0.0.4",
+    "ffmpeg-static": "^4.4.0",
     "libsodium-wrappers": "^0.7.9",
     "opusscript": "^0.0.8",
     "play-dl": "^0.9.9",
