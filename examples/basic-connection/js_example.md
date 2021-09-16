@@ -50,7 +50,7 @@ client.on('messageCreate', async (message) => {
         case "?deafen": {
             if (!connection) { message.reply("No connection found"); return; }
             await connection.toggleDeafen();
-            message.reply("Deafen toggled")
+            message.reply("Deafen toggled");
             break;
         }
 

@@ -1,7 +1,7 @@
-import { AudioPlayer, AudioPlayerState, AudioPlayerStatus, AudioPlayerStatus as Status, createAudioPlayer, createAudioResource, getVoiceConnection, StreamType, VoiceConnection } from '@discordjs/voice';
+import { AudioPlayer, AudioPlayerState, AudioPlayerStatus, AudioPlayerStatus as Status, createAudioPlayer, createAudioResource, getVoiceConnection, NoSubscriberBehavior, StreamType, VoiceConnection } from '@discordjs/voice';
 import { TypedEmitter } from 'tiny-typed-emitter';
 
-interface PlayerEvents {
+export interface PlayerEvents {
     /**
      * The event when the player transitions into buffering state i.e. loading the resource.
      */
@@ -33,38 +33,47 @@ interface PlayerEvents {
 }
 
 export class Player extends TypedEmitter<PlayerEvents> {
-    public player: AudioPlayer = createAudioPlayer();
+    public player: AudioPlayer = createAudioPlayer({
+        behaviors: {
+            noSubscriber: NoSubscriberBehavior.Stop
+        }
+    });
+    /**
+     * Constructor to create and assign the audio player to the guild voice connection.
+     * @param guildId 
+     * @returns 
+     */
     public constructor(guildId: string) {
         super();
         const connection: VoiceConnection | undefined = getVoiceConnection(guildId);
         if (!connection) {
-            setImmediate(() => this.emit('error', new Error("no active connection found")));
+            this.emit('error', new Error("no active connection found"));
             return;
         }
         this.player.on('stateChange', (oldState, newState) => {
             if (newState.status === Status.Buffering)
-                setImmediate(() => this.emit('audioPlayerBuffer', oldState, newState));
-            else if (newState.status === Status.Playing && oldState.status === Status.Idle)
-                setImmediate(() => this.emit('audioPlayerStart', oldState, newState));
+                this.emit('audioPlayerBuffer', oldState, newState);
+            else if (newState.status === Status.Playing && oldState.status === Status.Buffering)
+                this.emit('audioPlayerStart', oldState, newState);
             else if (newState.status === Status.Idle && oldState.status === Status.Playing)
-                setImmediate(() => this.emit('audioPlayerFinish', oldState, newState));
+                this.emit('audioPlayerFinish', oldState, newState);
             else if (newState.status === Status.Paused && oldState.status === Status.Playing)
-                setImmediate(() => this.emit('audioPlayerPause', oldState, newState));
+                this.emit('audioPlayerPause', oldState, newState);
             else if (newState.status === Status.Playing && oldState.status === Status.Paused)
-                setImmediate(() => this.emit('audioPlayerResume', oldState, newState));
+                this.emit('audioPlayerResume', oldState, newState);
             else if (newState.status === Status.AutoPaused)
-                setImmediate(() => this.emit('audioPlayerAutoPause', oldState, newState));
-            else setImmediate(() => this.emit('error', new Error("unknown_state_change")));
+                this.emit('audioPlayerAutoPause', oldState, newState);
+            else this.emit('error', new Error(`unknown_state_change (${oldState.status} -> ${newState.status})`));
         });
         this.player.on('error', (error) => void this.emit('error', error));
         try {
             connection.subscribe(this.player);
         } catch (error: any) {
-            setImmediate(() => this.emit('error', error));
+            this.emit('error', error);
         }
     }
     /**
-     * To play a audio file through the connection created earlier.
+     * Plays an audio from a local file or url.
      * @param {string} path The path to the audio file.
      */
     public play(path: string): void {
@@ -72,7 +81,7 @@ export class Player extends TypedEmitter<PlayerEvents> {
             const resource = createAudioResource(path, { inputType: StreamType.Arbitrary });
             void this.player.play(resource);
         } catch (error: any) {
-            setImmediate(() => this.emit('error', error));
+            this.emit('error', error);
         }
     }
     /**
@@ -81,8 +90,8 @@ export class Player extends TypedEmitter<PlayerEvents> {
      */
     public stop(): boolean { return this.player.stop(); }
     /**
-     * 
-     * @returns 
+     * Pauses/Unpauses the audio player.
+     * @returns {boolean}
      */
     public togglePause(): boolean {
         if (this.player.state?.status === AudioPlayerStatus.Paused) {

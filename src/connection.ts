@@ -1,9 +1,9 @@
-import { entersState, getVoiceConnection, joinVoiceChannel, VoiceConnection, VoiceConnectionDisconnectReason, VoiceConnectionStatus } from '@discordjs/voice';
+import { entersState, generateDependencyReport, joinVoiceChannel, VoiceConnection, VoiceConnectionDisconnectReason, VoiceConnectionStatus } from '@discordjs/voice';
 import { TypedEmitter } from 'tiny-typed-emitter';
 import { promisify } from 'util';
 const wait = promisify(setTimeout);
 
-interface ConnectionEvents {
+export interface ConnectionEvents {
     /**
      * 
      */
@@ -37,7 +37,7 @@ interface ConnectionEvents {
 export class Connection extends TypedEmitter<ConnectionEvents> {
     public connection: VoiceConnection;
     public readyLock = false;
-    public oldVoiceID: string | null;
+    private oldVoiceID: string | null;
     constructor(voice: any) {
         super();
         this.connection = joinVoiceChannel({ channelId: voice.channel.id, guildId: voice.guild.id, adapterCreator: voice.guild.voiceAdapterCreator });
@@ -48,23 +48,21 @@ export class Connection extends TypedEmitter<ConnectionEvents> {
                 if (newState.reason === VoiceConnectionDisconnectReason.WebSocketClose && newState.closeCode === 4014) {
                     try {
                         await entersState(this.connection, VoiceConnectionStatus.Connecting, 3_000);
-                        setImmediate(() => {
-                            this.emit('voiceConnectionMove', this.oldVoiceID, this.connection.joinConfig.channelId);
-                            this.oldVoiceID = this.connection.joinConfig.channelId;
-                        });
+                        this.emit('voiceConnectionMove', this.oldVoiceID, this.connection.joinConfig.channelId);
+                        this.oldVoiceID = this.connection.joinConfig.channelId;
                     } catch {
                         this.connection.destroy();
-                        setImmediate(() => this.emit('voiceConnectionKick', this.connection.joinConfig.channelId));
+                        this.emit('voiceConnectionKick', this.connection.joinConfig.channelId);
                     }
                 } else if (this.connection.rejoinAttempts < 5) {
                     await wait((this.connection.rejoinAttempts + 1) * 3_000);
                     this.connection.rejoin();
                 } else {
                     this.connection.destroy();
-                    setImmediate(() => this.emit('error', new Error("connection_error")));
+                    this.emit('error', new Error("connection_error"));
                 }
             } else if (newState.status === VoiceConnectionStatus.Destroyed) {
-                setImmediate(() => this.emit('voiceConnectionDestroy', this.connection.joinConfig.channelId));
+                this.emit('voiceConnectionDestroy', this.connection.joinConfig.channelId);
             } else if (!this.readyLock && (newState.status === VoiceConnectionStatus.Connecting || newState.status === VoiceConnectionStatus.Signalling)) {
                 this.readyLock = true;
                 try {
@@ -72,7 +70,7 @@ export class Connection extends TypedEmitter<ConnectionEvents> {
                 } catch {
                     if (this.connection.state.status !== VoiceConnectionStatus.Destroyed) {
                         this.connection.destroy();
-                        setImmediate(() => this.emit('error', new Error("connection_error")));
+                        this.emit('error', new Error("connection_error"));
                     }
                 } finally {
                     this.readyLock = false;
@@ -84,15 +82,18 @@ export class Connection extends TypedEmitter<ConnectionEvents> {
         const flag = this.connection.joinConfig.selfDeaf;
         this.connection.joinConfig.selfDeaf = !flag
         this.connection.rejoin(this.connection.joinConfig);
-        setImmediate(() => this.emit('selfDeafen', !flag));
+        this.emit('selfDeafen', !flag);
     }
     public async toggleMute() {
         const flag = this.connection.joinConfig.selfMute;
         this.connection.joinConfig.selfMute = !flag;
         this.connection.rejoin(this.connection.joinConfig);
-        setImmediate(() => this.emit('selfMute', !flag));
+        this.emit('selfMute', !flag);
     }
     public async destroy() {
         this.connection.destroy();
+    }
+    public getDependancies() {
+        return generateDependencyReport();
     }
 }
