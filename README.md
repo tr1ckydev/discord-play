@@ -43,7 +43,8 @@ import { DiscordPlay, DisPlayEvent } from 'discord-play';
 const { DiscordPlay, DisPlayEvent } = require('discord-play');
 ```
 
-**The main DiscordPlay module is currently work in progress but the separate modules are available for use.**
+See the [example](https://github.com/tr1ckydev/discord-play/blob/main/examples/main/ts_example.md) to see DiscordPlay in action.
+An almost complete music bot in few lines of code.
 
 ## Implementing the separate modules in your project
 
