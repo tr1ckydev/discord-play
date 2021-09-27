@@ -1,10 +1,10 @@
-import { createAudioResource } from '@discordjs/voice';
-import { search, stream, stream_from_info, validate, video_info, yt_validate } from 'play-dl';
-import { Video } from 'play-dl/dist/YouTube/classes/Video';
+import { AudioPlayerStatus } from '@discordjs/voice';
+import { search, video_basic_info, yt_validate } from 'play-dl';
 import { TypedEmitter } from 'tiny-typed-emitter';
-import { Connection, ConnectionEvents } from './src/connection';
-import { DisPlayEvent } from './src/eventEnums';
-import { Player, PlayerEvents } from './src/player';
+import { Connection, ConnectionEvents } from './src/connection.js';
+import { DisPlayEvent } from './src/eventEnums.js';
+import { Player, PlayerEvents } from './src/player.js';
+import { createTrackResource } from './src/track.js';
 
 interface Options {
     /**
@@ -12,10 +12,22 @@ interface Options {
      */
     cookies?: string,
     /**
-     * 
+     * Sets the quality of streams.
      */
-    retryLimit?: number,
+    quality: "LOWEST" | "MEDIUM" | "HIGHEST",
+    /**
+     * Defines the behaviour of what should happen after the queue array becomes empty.
+     * 
+     * CONNECTION_KEEP - Continues to remain in the voice channel.
+     * 
+     * CONNECTION_DESTROY - Leaves the voice channel.
+     */
+    emptyQueueBehaviour: "CONNECTION_KEEP" | "CONNECTION_DESTROY"
 }
+
+/**
+ * The interface of objects stored in queue array
+ */
 interface Enqueue {
     /**
      * The video title for the track.
@@ -24,26 +36,38 @@ interface Enqueue {
     /**
      * The video url for the track.
      */
-    url: string | undefined,
+    url: string,
     /**
      * The name of channel of the track video.
      */
-    artist: string
+    artist: string,
+    /**
+     * The id of the user who added the track to the playlist.
+     */
+    addedBy: string
 }
+
 interface DiscordPlayEvents extends ConnectionEvents, PlayerEvents { }
 
+/**
+ * Initializes the Connection, Player.
+ * Re-exports all the events to be directly emitted from here,
+ * and not from the modules itself, for easier event handling.
+ */
 export class DiscordPlay extends TypedEmitter<DiscordPlayEvents>{
     public connection: Connection;
     public player: Player;
     private cookies: string | undefined;
     public queue: Enqueue[] = [];
-    /**
-     * 
-     * @param voice 
-     * @param options 
+    public options: Options;
+    private songLoop = false;
+    /** 
+     * @param voice The voice channel object
+     * @param options Various options to configure DiscordPlay
      */
-    constructor(voice: any, options?: Options) {
+    constructor(voice: any, options: Options) {
         super();
+        this.options = options;
         this.connection = new Connection(voice);
         this.player = new Player(voice.guild.id);
         this.cookies = options?.cookies;
@@ -51,34 +75,34 @@ export class DiscordPlay extends TypedEmitter<DiscordPlayEvents>{
             // @ts-ignore
             this.connection.on(eventName, (arg1, arg2) => this.emit(eventName, arg1, arg2));
         });
-        ["audioPlayerBuffer", "audioPlayerStart", "audioPlayerFinish", "audioPlayerPause", "audioPlayerResume", "audioPlayerAutoPause", "error"].forEach(eventName => {
+        ["audioPlayerBuffer", "audioPlayerStart", "audioPlayerPause", "audioPlayerResume", "audioPlayerAutoPause", "error"].forEach(eventName => {
             // @ts-ignore
             this.player.on(eventName, (arg1, arg2) => this.emit(eventName, arg1, arg2));
+        });
+        this.player.on("audioPlayerFinish", (arg1, arg2) => {
+            this.emit("audioPlayerFinish", arg1, arg2);
+            if (!this.songLoop) this.queue.shift();
+            this.processQueue();
         });
     }
     /**
      * Enqueues the track from the args provided.
-     * @param args 
+     * @param args The terms to be searched. (Can be terms or a youtube url)
      */
     public async enqueue(args: string): Promise<Enqueue> {
-        let probe, details;
+        let details;
         switch (yt_validate(args)) {
-            case "video": {
-                details = await video_info(args, this.cookies);
-                probe = await stream_from_info(details);
-                details = details.video_details;
+            case "video":
+                details = (await video_basic_info(args, this.cookies)).video_details;
                 break;
-            }
-            default: {
-                details = (await search(args, { limit: 1 }))[0] as Video;
-                probe = await stream(details.url as string, this.cookies);
+            default:
+                details = (await search(args, { limit: 1 }))![0];
                 break;
-            }
         }
-        const resource = createAudioResource(probe.stream, { inputType: probe.type });
-        this.player.player.play(resource);
-        const track: Enqueue = { title: details.title, url: details.url, artist: details.channel?.name };
+        // @ts-ignore
+        const track: Enqueue = { title: details.title, url: details.url!, artist: details.channel?.name };
         this.queue.push(track);
+        this.processQueue();
         return track;
     }
     /**
@@ -91,25 +115,31 @@ export class DiscordPlay extends TypedEmitter<DiscordPlayEvents>{
      * 
      */
     public stop(): void {
-        this
+        this.player.stop();
+        this.connection.destroy();
     }
+    /**
+     * 
+     */
+    public toggleSongLoop(): boolean {
+        return this.songLoop = !this.songLoop;
+    }
+    /**
+     * Processes the queue and executes behaviour.
+     */
     private processQueue(): void {
-        if (!this.queue.length) return;
-
-
+        if (!this.queue.length) {
+            switch (this.options.emptyQueueBehaviour) {
+                case "CONNECTION_KEEP": break;
+                case "CONNECTION_DESTROY": this.connection.destroy(); break;
+            }
+            return;
+        }
+        if (this.player.player.state.status !== AudioPlayerStatus.Idle) return;
+        createTrackResource(this.queue[0].url, this.cookies)
+            .then(resource => void this.player.player.play(resource))
+            .catch(error => this.emit('error', error));
     }
 }
 
-function createTrackResource(volume, args, hq) {
-    return new Promise(async (resolve, reject) => {
-        let probe;
-        try {
-            if (validate(args[0]) !== false) probe = await stream(args[0]);
-            else probe = await stream((await search(args.join(' '), { limit: 1 }))[0].url);
-            const resource = createAudioResource(probe.stream, { inputType: probe.type, inlineVolume: !hq });
-            if (!hq) resource.volume?.setVolume(volume);
-            resolve(resource);
-        } catch (error) { reject(error); }
-    });
-}
 export { Connection as DisPlayConnection, Player as DisPlayPlayer, DisPlayEvent };
