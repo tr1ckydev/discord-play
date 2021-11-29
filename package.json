@@ -28,8 +28,11 @@
   },
   "homepage": "https://github.com/tr1ckydev/discord-play#readme",
   "dependencies": {
-    "@discordjs/voice": "^0.6.0",
-    "play-dl": "^1.0.3",
+    "@discordjs/voice": "^0.7.5",
     "tiny-typed-emitter": "^2.1.0"
+  },
+  "devDependencies": {
+    "discord.js": "^13.3.1",
+    "typedoc": "^0.22.10"
   }
 }

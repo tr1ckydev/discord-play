@@ -18,8 +18,8 @@
 	},
   "files": [
     "index.ts",
-    "src/connection.ts",
-    "src/player.ts",
-	"src/eventEnums.ts"
+    "src/classes/connection.ts",
+    "src/classes/player.ts",
+	"src/interfaces/eventEnums.ts"
   ]
 }

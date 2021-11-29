@@ -12,8 +12,6 @@ A powerful module backed by play-dl to create music bots easily and also interac
 
 ## Features
 
-- A flexible discord.js module to make music bots without any API key using `play-dl`
-- Supports YouTube and Spotify (only at the moment)
 - Premade AudioPlayer and VoiceConnection event-based logic modules to simplify interacting with the new `@discordjs/voice` module
 - 100% promise based
 - 100% event logic based
