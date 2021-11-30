@@ -16,10 +16,5 @@
 		"esModuleInterop": true,
 		"skipLibCheck": true
 	},
-  "files": [
-    "index.ts",
-    "src/classes/connection.ts",
-    "src/classes/player.ts",
-	"src/interfaces/eventEnums.ts"
-  ]
+  "include": ["src/**/*.ts"]
 }
