@@ -4,7 +4,8 @@
   "description": "The ultimate framework based on play-dl to create music bots in discord.js v13 and also interact with the new voice module in a robust manner.",
   "main": "dist/index.js",
   "scripts": {
-    "compile": "tsc"
+    "compile-main": "tsc",
+    "compile-docs": "npx typedoc"
   },
   "repository": {
     "type": "git",

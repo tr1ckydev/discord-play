@@ -1,4 +1,4 @@
-import { AudioPlayer, AudioPlayerStatus as Status, AudioResource, createAudioPlayer, createAudioResource, getVoiceConnection, StreamType } from '@discordjs/voice';
+import { AudioPlayer, AudioPlayerPlayingState, AudioPlayerStatus as Status, AudioResource, createAudioPlayer, createAudioResource, getVoiceConnection, StreamType } from '@discordjs/voice';
 import { Readable } from 'node:stream';
 import { TypedEmitter } from 'tiny-typed-emitter';
 import { PlayerEvents } from '../interfaces/events';
@@ -18,6 +18,12 @@ export class DisPlayPlayer extends TypedEmitter<PlayerEvents> {
      * The {@link AudioPlayer} instance from @discordjs/voice.
      */
     public readonly player = createAudioPlayer();
+
+    /**
+     * Stores volume amount before muting the player, which can be restored back
+     * when unmuting the player.
+     */
+    private volumeCache: number | null = null;
 
     /**
      * Attaches logic to the audio player and binds it to the voice connection.
@@ -104,20 +110,6 @@ export class DisPlayPlayer extends TypedEmitter<PlayerEvents> {
     }
 
     /**
-     * Changes volume of the underlying resource of the player.
-     * @param volume - Percentage of volume to set (0 to 100).
-     * @returns `true` if volume is changed successfully, otherwise `false`.
-     */
-    public setVolume(volume: number) {
-        if (this.player.state.status !== Status.Idle) {
-            this.player.state.resource.volume?.setVolume(volume / 100);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
      * Returns the amount of volume in percentage (0 to 100) of the player resource.
      * @remarks
      * Returns percentage of volume else undefined if player doesn't have any underlying resource
@@ -127,9 +119,57 @@ export class DisPlayPlayer extends TypedEmitter<PlayerEvents> {
         if (this.player.state.status !== Status.Idle) {
             const vol = this.player.state.resource.volume?.volume
             return vol ? vol * 100 : vol;
-        } else {
-            return undefined;
         }
+        return undefined;
+    }
+
+    /**
+     * Changes volume of the underlying resource of the player.
+     * @param volume - Percentage of volume to set (0 to 100).
+     * @returns `true` if volume is changed successfully, otherwise `false`.
+     * 
+     * @remarks
+     * Works only when inline volume of resource was enabled.
+     */
+    public setVolume(volume: number) {
+        if (this._isVolumeChangeable()) {
+            (this.player.state as AudioPlayerPlayingState).resource.volume!.setVolume(volume / 100);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Mutes/Unmutes the audio player.
+     * @returns `true` if player was muted, otherwise `false`.
+     * 
+     * @remarks
+     * Requires the currently playing audio resource to have inline volume enabled.
+     * 
+     * @throws Error if resource doesn't have inline volume enabled.
+     */
+    public toggleMute() {
+        if (!this._isVolumeChangeable()) throw new Error("Unable to detect resource with inline volume enabled.");
+        if (!this.volumeCache) {
+            this.volumeCache = this.volume ?? null;
+            this.setVolume(0);
+            return true;
+        } else {
+            this.setVolume(this.volumeCache);
+            this.volumeCache = null;
+            return false;
+        }
+    }
+
+    /**
+     * To detect if currently underlying resource (if any) has inline volume enabled or not.
+     * @returns `true` if inline volume is enabled, otherwise `false`.
+     */
+    private _isVolumeChangeable() {
+        if (this.player.state.status !== Status.Idle) {
+            return this.player.state.resource.volume ? true : false;
+        }
+        return false;
     }
 
 }
