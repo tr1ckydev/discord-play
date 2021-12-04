@@ -1,7 +1,7 @@
 {
   "name": "discord-play",
-  "version": "2.2.0",
-  "description": "The ultimate framework based on play-dl to create music bots in discord.js v13 and also interact with the new voice module in a robust manner.",
+  "version": "3.0.0",
+  "description": "A robust wrapper module for @discordjs/voice, implementing functions and emitting events making it easier to interact with the new voice module.",
   "main": "dist/index.js",
   "scripts": {
     "compile-main": "tsc",
@@ -27,7 +27,7 @@
   "bugs": {
     "url": "https://github.com/tr1ckydev/discord-play/issues"
   },
-  "homepage": "https://github.com/tr1ckydev/discord-play#readme",
+  "homepage": "https://discord-play.netlify.app/",
   "dependencies": {
     "@discordjs/voice": "^0.7.5",
     "tiny-typed-emitter": "^2.1.0"

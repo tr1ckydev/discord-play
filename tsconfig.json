@@ -24,7 +24,7 @@
 	],
 	"typedocOptions": {
 		"entryPoints": [
-			"index.ts",
+			"src/index.ts",
 			"src/classes/connection.ts",
 			"src/classes/player.ts",
 			"src/interfaces/eventEnums.ts",

@@ -4,17 +4,35 @@
 
 
 
-# discord-play (DisPlay) - Beta Project
+# discord-play (DisPlay)
 
-A powerful module backed by play-dl to create music bots easily and also interact with the new voice module for discord.js v13 in a more robust manner.
+A robust wrapper module for [@discordjs/voice](https://www.npmjs.com/package/@discordjs/voice), implementing functions and emitting events making it easier to interact with the new voice module.
 
 
 
 ## Features
 
-- Premade AudioPlayer and VoiceConnection event-based logic modules to simplify interacting with the new `@discordjs/voice` module
-- 100% promise based
-- 100% event logic based
+- DisPlayConnection *(Voice Connection class)*
+  - Emits [voice connection events](https://discord-play.netlify.app/interfaces/interfaces_events.connectionevents) like `voiceConnectionKick`, `voiceConnectionMove`, etc.
+  - Contains utility functions such as `toggleMute` and `toggleDeafen`.
+  - Contains built-in reconnection logic.
+
+- DisPlayPlayer *(Audio Player class)*
+  - Emits [audio player events](https://discord-play.netlify.app/interfaces/interfaces_events.playerevents) like `audioPlayerStart`, `audioPlayerFinish`, etc.
+  - Contains a simplified powerful [`play` function](https://discord-play.netlify.app/classes/classes_player.displayplayer#play) which supports playing from local audio files or online audio urls to readable stream of audio data or even a premade Audio Resource.
+  - Contains utility functions such as `togglePause`, `toggleMute`.
+
+
+
+## Documentation
+
+- [Main documentation site](https://discord-play.netlify.app/)
+- [DisPlayConnection](https://discord-play.netlify.app/classes/classes_connection.displayconnection)
+- [DisPlayPlayer](https://discord-play.netlify.app/classes/classes_player.displayplayer)
+
+For any help, feel free to join the [discord server](https://discord.gg/S4svCpNupM) and ask.
+
+
 
 ## Installation
 
@@ -24,36 +42,28 @@ A powerful module backed by play-dl to create music bots easily and also interac
 
 The following are some **required** npm packages to be installed (alternatives provided) :
 
-- `discord.js` v13+ only
-- The new voice library - `@discordjs/voice`
+- `discord.js` v13+
+- The new voice library - `@discordjs/voice` (Gets automatically installed as dependency)
 - Opus encoding library - `@discordjs/opus` or `opusscript`
 - FFmpeg - `ffmpeg-static` or ffmpeg installed globally in your system
 - Encrytion package - `sodium` or `libsodium-wrappers`
-- The data fetching module - `play-dl`
+
+
+
+## Importing
+
+```js
+import { DiscordPlay, DisPlayEvent } from 'discord-play';
+// or
+const { DiscordPlay, DisPlayEvent } = require('discord-play');
+```
+
+
 
 ## Basic Usage
 
 ```js
-// ES6 JS or TS
-import { DiscordPlay, DisPlayEvent } from 'discord-play';
-
-//Common JS
-const { DiscordPlay, DisPlayEvent } = require('discord-play');
-```
-
-See the [example](https://github.com/tr1ckydev/discord-play/blob/main/examples/main/ts_example.md) to see DiscordPlay in action.
-An almost complete music bot in few lines of code.
-
-## Implementing the separate modules in your project
-
-`DisPlayConnection` and `DisPlayPlayer` are two complete premade event-driven modules available inside DiscordPlay. You can include them in your project separately according to your need.
-
-The full documentation for these two modules are available [here](./src/README.md).
-
-```js
-import {
-    DisPlayConnection, DisPlayPlayer, DisPlayEvent
-} from 'discord-play';
+import { DisPlayConnection, DisPlayPlayer, DisPlayEvent } from 'discord-play';
 
 // joins the voice channel and attaches all connection logic
 const connection = new DisPlayConnection(message.member.voice);
@@ -71,3 +81,8 @@ player.on(DisPlayEvent.PLAYING, () => {
 });
 ```
 
+
+
+## License
+
+This repository uses [MIT license](https://github.com/tr1ckydev/discord-play/blob/main/LICENSE).

@@ -64,9 +64,9 @@ export class DisPlayPlayer extends TypedEmitter<PlayerEvents> {
     public play(resource: AudioResource): void;
 
     /**
-     * Plays from input source provided.
+     * Plays the input audio resource, and any previously playing resource gets destroyed and replaced.
      * @param source - Can be either :
-     * - Audio url i.e. local path or a url with audio endpoint (will require ffmpeg).
+     * - Audio url i.e. local file path or an online audio url (will require ffmpeg).
      * - Readable stream of audio data.
      * @param options - {@link PlayOptions}
      */
@@ -111,9 +111,8 @@ export class DisPlayPlayer extends TypedEmitter<PlayerEvents> {
 
     /**
      * Returns the amount of volume in percentage (0 to 100) of the player resource.
-     * @remarks
-     * Returns percentage of volume else undefined if player doesn't have any underlying resource
-     * or resource doesn't have inline volume enabled (has 100% volume).
+     * @remarks Returns percentage of volume else `undefined` if player doesn't have
+     * any underlying resource or resource doesn't have inline volume enabled (has 100% volume).
      */
     public get volume() {
         if (this.player.state.status !== Status.Idle) {
@@ -127,9 +126,7 @@ export class DisPlayPlayer extends TypedEmitter<PlayerEvents> {
      * Changes volume of the underlying resource of the player.
      * @param volume - Percentage of volume to set (0 to 100).
      * @returns `true` if volume is changed successfully, otherwise `false`.
-     * 
-     * @remarks
-     * Works only when inline volume of resource was enabled.
+     * @remarks Works only when inline volume of resource was enabled.
      */
     public setVolume(volume: number) {
         if (this._isVolumeChangeable()) {
@@ -142,10 +139,7 @@ export class DisPlayPlayer extends TypedEmitter<PlayerEvents> {
     /**
      * Mutes/Unmutes the audio player.
      * @returns `true` if player was muted, otherwise `false`.
-     * 
-     * @remarks
-     * Requires the currently playing audio resource to have inline volume enabled.
-     * 
+     * @remarks Requires the currently playing audio resource to have inline volume enabled.
      * @throws Error if resource doesn't have inline volume enabled.
      */
     public toggleMute() {
