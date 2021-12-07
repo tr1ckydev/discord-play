@@ -5,13 +5,17 @@ import { StreamType } from '@discordjs/voice';
  */
 export interface PlayOptions {
     /**
+     * Type of input stream - {@link StreamType}.
+     * 
      * If not specified, `StreamType.Arbitrary` will be used
      * else the specified stream type.
      */
     streamType?: StreamType;
     /**
-     * If not specified, the resource will be created with inline volume `off`.
-     * If any value was provided, the resource gets created with inline volume `on`
+     * Percentage of volume to set (0 to 100).
+     * @remarks
+     * If not specified, the resource will be created with inline volume `off`,
+     * else the resource gets created with inline volume `on`
      * and then the volume of the resource gets set to the value provided.
      */
     volume?: number;

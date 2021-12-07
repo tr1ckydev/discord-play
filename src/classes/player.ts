@@ -28,6 +28,7 @@ export class DisPlayPlayer extends TypedEmitter<PlayerEvents> {
     /**
      * Attaches logic to the audio player and binds it to the voice connection.
      * @param guildId - The ID of the guild where the voice connection is established.
+     * @throws Error if no active voice connection was found.
      */
     constructor(guildId: string) {
         super();
@@ -81,7 +82,7 @@ export class DisPlayPlayer extends TypedEmitter<PlayerEvents> {
                     inputType: options?.streamType ?? StreamType.Arbitrary,
                     inlineVolume: options?.volume ? true : false
                 });
-                if (options?.volume) resource.volume?.setVolume(options.volume);
+                if (options?.volume) resource.volume?.setVolume(options.volume / 100);
                 this.player.play(resource);
             }
         } catch (error: any) {
@@ -116,7 +117,7 @@ export class DisPlayPlayer extends TypedEmitter<PlayerEvents> {
      */
     public get volume() {
         if (this.player.state.status !== Status.Idle) {
-            const vol = this.player.state.resource.volume?.volume
+            const vol = this.player.state.resource.volume?.volume;
             return vol ? vol * 100 : vol;
         }
         return undefined;

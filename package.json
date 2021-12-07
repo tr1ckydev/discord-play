@@ -1,6 +1,6 @@
 {
   "name": "discord-play",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "A robust wrapper module for @discordjs/voice, implementing functions and emitting events making it easier to interact with the new voice module.",
   "main": "dist/index.js",
   "scripts": {
@@ -23,7 +23,7 @@
     "dist/*"
   ],
   "author": "tr1ckydev",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/tr1ckydev/discord-play/issues"
   },

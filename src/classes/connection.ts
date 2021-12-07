@@ -106,7 +106,7 @@ export class DisPlayConnection extends TypedEmitter<ConnectionEvents> {
      * Destroys the voice connection, making it unable to be reused again.
      */
     public destroy() {
-        this.connection.destroy();
+        try { this.connection.destroy(); } catch { }
     }
 
 }
